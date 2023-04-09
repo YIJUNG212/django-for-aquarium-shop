@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -126,3 +128,36 @@ STATICFILES_DIRS=[BASE_DIR/'static',]
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+DEBUG = False
+
+# SSL settings
+SSL_ENABLED = True
+SSL_CERT_PATH = '/home/seric/envdata/myproject/aquarium/cert.pem'
+SSL_KEY_PATH = '/home/seric/envdata/myproject/aquarium/key.pem'
+
+if SSL_ENABLED:
+    # enable SSL settings
+    os.environ['HTTPS'] = "on"
+    os.environ['wsgi.url_scheme'] = 'https'
+    
+    # SSL certificate and key paths
+    SSL_CERT_PATH = SSL_CERT_PATH
+    SSL_KEY_PATH = SSL_KEY_PATH
+    
+    # SSL settings for runserver
+    RUNSERVER_SSL_OPTIONS = {
+        'certfile': SSL_CERT_PATH,
+        'keyfile': SSL_KEY_PATH,
+        'ssl_requirement': {
+            'https': 'on'
+        }
+    }
+
+    # SSL settings for production server (e.g. gunicorn, uwsgi)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SSL_REDIRECT_STATUS = 301
+
+# your other settings here...
