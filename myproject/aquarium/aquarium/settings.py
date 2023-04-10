@@ -115,7 +115,9 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
+
+SECRET_KEY="kljliewurpqiuroqejrlkqejijuiol !iuooi;ujqwierujwqio;j;lkj;klj 9n vpuu1 ij1i;o uy89o ljq;oiu31 2v31ioj5 r;l31jerl;1u 32"
 
 
 # Static files (CSS, JavaScript, Images)
@@ -161,3 +163,7 @@ if SSL_ENABLED:
     SSL_REDIRECT_STATUS = 301
 
 # your other settings here...
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
