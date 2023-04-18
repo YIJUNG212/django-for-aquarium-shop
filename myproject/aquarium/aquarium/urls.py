@@ -9,11 +9,13 @@ router.register(r'members', MemberViewSet)
 #router2 = routers.DefaultRouter()
 #註冊前請先引用對應的ViewSet
 from buyapp.views import RegisterViewSet
+from buyapp.views import VipInfoViewSet
 #要使用path include 及routers 也要import 相關設定
 from django.urls import path, include
 from rest_framework import routers
 #註冊ViewSet
 router.register(r'register', RegisterViewSet,basename="register")
+router.register(r'vipinfo', VipInfoViewSet,basename="vipinfo")
 
 #這裡設定只要有path('api/', include(router.urls)), 跟上面的router = routers.DefaultRouter(),就會自動加入ViewSet
 urlpatterns = [

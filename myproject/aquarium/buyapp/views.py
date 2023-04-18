@@ -50,14 +50,16 @@ from django.db.models import Max
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+###VipInfo範圍
 
-from .models import Register
-from .serializer import RegisterSerializer
 
-class RegisterViewSet(viewsets.ModelViewSet):
-    queryset = Register.objects.all()
-    serializer_class = RegisterSerializer
+from .models import VipInfo
+from .serializer import VipInfoSerializer
 
+class VipInfoViewSet(viewsets.ModelViewSet):
+    queryset = VipInfo.objects.all()
+    serializer_class = VipInfoSerializer
+####律定格式範圍#####
     def parse_form_data(self, data):
         # 將非 JSON 格式的 POST 請求轉成 QueryDict 格式
         if isinstance(data, QueryDict):
@@ -78,6 +80,85 @@ class RegisterViewSet(viewsets.ModelViewSet):
         # 其他情況，就直接返回原始請求數據
         else:
             return data
+    ####律定格式範圍#####
+
+    @action(detail=False, methods=['get'])
+    def max_id(self, request):
+        max_id = self.queryset.aggregate(Max('id'))['id__max']
+        return Response({'max_id': max_id})
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = VipInfoSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = VipInfo.objects.all()
+        register = get_object_or_404(queryset, pk=pk)
+        serializer = VipInfoSerializer(register)
+        return Response(serializer.data)
+
+    def create(self, request):
+        data = self.parse_form_data(request.data)
+        serializer = VipInfoSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk=None):
+        try:
+            register = VipInfo.objects.get(pk=pk)
+        except VipInfo.DoesNotExist:
+            return Response({'detail': '找不到資源。'}, status=status.HTTP_404_NOT_FOUND)
+
+        data = self.parse_form_data(request.data)
+        serializer = VipInfoSerializer(register, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        try:
+            register = VipInfo.objects.get(pk=pk)
+        except VipInfo.DoesNotExist:
+            return Response({'detail': '找不到資源。'}, status=status.HTTP_404_NOT_FOUND)
+
+        register.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+######################################
+##############################################
+#Register範圍
+from .models import Register
+from .serializer import RegisterSerializer
+
+class RegisterViewSet(viewsets.ModelViewSet):
+    queryset = Register.objects.all()
+    serializer_class = RegisterSerializer
+####律定格式範圍#####
+    def parse_form_data(self, data):
+        # 將非 JSON 格式的 POST 請求轉成 QueryDict 格式
+        if isinstance(data, QueryDict):
+            # 如果已經是 QueryDict 格式，就直接返回
+            return data
+
+        # 取得請求標頭中的 Content-Type 值
+        content_type = self.request.META.get('CONTENT_TYPE', '').split(';')[0].lower()
+
+        # 如果 Content-Type 為 application/x-www-form-urlencoded，則使用 QueryDict 解析
+        if content_type == 'application/x-www-form-urlencoded':
+            return QueryDict(data)
+
+        # 如果 Content-Type 為 multipart/form-data，則使用 request.POST 解析
+        elif content_type == 'multipart/form-data':
+            return self.request.POST
+
+        # 其他情況，就直接返回原始請求數據
+        else:
+            return data
+    ####律定格式範圍#####
 
     @action(detail=False, methods=['get'])
     def max_id(self, request):

@@ -4,6 +4,14 @@ class Register(models.Model):
     email=models.EmailField(max_length=50,null=False)
     passwd=models.CharField(max_length=50,null=False)
 
+class VipInfo(models.Model):
+    cMemberId=models.IntegerField(null=False)
+    cemail=models.EmailField(max_length=50,null=False)
+    cpasswd=models.CharField(max_length=50,null=False)
+    cphone=models.CharField(max_length=50,null=False)
+    cBirthday=models.DateField(null=True)
+    cAddr=models.CharField(max_length=50,null=True)
+
 class Member(models.Model):
     name = models.CharField(max_length=50)
     email = models.EmailField()
