@@ -16,11 +16,147 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from django.http import QueryDict
 
+from django.db.models import Max
+from rest_framework.decorators import action
+
+#import 資料表register
+from .models import Register
+#import 最大值的函式,因為等等要用這個來處理ID問題
+from django.db.models import Max
+#解析器也要import
+
+from .serializer import RegisterSerializer
+
+from django.shortcuts import get_object_or_404
+from django.http import QueryDict
+from django.db.models import Max
+
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from .models import Register
+from .serializer import RegisterSerializer
+
+
+
+
+from django.shortcuts import get_object_or_404
+from django.http import QueryDict
+from django.db.models import Max
+
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+from .models import Register
+from .serializer import RegisterSerializer
+
+class RegisterViewSet(viewsets.ModelViewSet):
+    queryset = Register.objects.all()
+    serializer_class = RegisterSerializer
+
+    def parse_form_data(self, data):
+        # 將非 JSON 格式的 POST 請求轉成 QueryDict 格式
+        if isinstance(data, QueryDict):
+            # 如果已經是 QueryDict 格式，就直接返回
+            return data
+
+        # 取得請求標頭中的 Content-Type 值
+        content_type = self.request.META.get('CONTENT_TYPE', '').split(';')[0].lower()
+
+        # 如果 Content-Type 為 application/x-www-form-urlencoded，則使用 QueryDict 解析
+        if content_type == 'application/x-www-form-urlencoded':
+            return QueryDict(data)
+
+        # 如果 Content-Type 為 multipart/form-data，則使用 request.POST 解析
+        elif content_type == 'multipart/form-data':
+            return self.request.POST
+
+        # 其他情況，就直接返回原始請求數據
+        else:
+            return data
+
+    @action(detail=False, methods=['get'])
+    def max_id(self, request):
+        max_id = self.queryset.aggregate(Max('id'))['id__max']
+        return Response({'max_id': max_id})
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = RegisterSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = Register.objects.all()
+        register = get_object_or_404(queryset, pk=pk)
+        serializer = RegisterSerializer(register)
+        return Response(serializer.data)
+
+    def create(self, request):
+        data = self.parse_form_data(request.data)
+        serializer = RegisterSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk=None):
+        try:
+            register = Register.objects.get(pk=pk)
+        except Register.DoesNotExist:
+            return Response({'detail': '找不到資源。'}, status=status.HTTP_404_NOT_FOUND)
+
+        data = self.parse_form_data(request.data)
+        serializer = RegisterSerializer(register, data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        try:
+            register = Register.objects.get(pk=pk)
+        except Register.DoesNotExist:
+            return Response({'detail': '找不到資源。'}, status=status.HTTP_404_NOT_FOUND)
+
+        register.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+####################################################
 
 class MemberViewSet(viewsets.ModelViewSet):
     queryset = Member.objects.all()
     serializer_class = MemberSerializer
+
+    def parse_form_data(self, data):
+        # 將非 JSON 格式的 POST 請求轉成 QueryDict 格式
+        if isinstance(data, QueryDict):
+            # 如果已經是 QueryDict 格式，就直接返回
+            return data
+
+        # 取得請求標頭中的 Content-Type 值
+        content_type = self.request.META.get('CONTENT_TYPE', '').split(';')[0].lower()
+
+        # 如果 Content-Type 為 application/x-www-form-urlencoded，則使用 QueryDict 解析
+        if content_type == 'application/x-www-form-urlencoded':
+            return QueryDict(data)
+
+        # 如果 Content-Type 為 multipart/form-data，則使用 request.POST 解析
+        elif content_type == 'multipart/form-data':
+            return self.request.POST
+
+        # 其他情況，就直接返回原始請求數據
+        else:
+            return data
+
+    @action(detail=False,methods=['get'])
+    def max_id(self,request):
+        max_id =self.queryset.aggregate(Max('id'))['id__max']
+        return Response({'max_id':max_id})
 
     def list(self, request):
         queryset = self.get_queryset()
@@ -34,7 +170,8 @@ class MemberViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request):
-        serializer = MemberSerializer(data=request.data)
+        data = self.parse_form_data(request.data)
+        serializer = MemberSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -46,7 +183,8 @@ class MemberViewSet(viewsets.ModelViewSet):
         except Member.DoesNotExist:
             return Response({'detail': '找不到資源。'}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = MemberSerializer(member, data=request.data)
+        data = self.parse_form_data(request.data)
+        serializer = MemberSerializer(member, data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -60,6 +198,7 @@ class MemberViewSet(viewsets.ModelViewSet):
 
         member.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 def index(request):
     return HttpResponse("我是主頁")

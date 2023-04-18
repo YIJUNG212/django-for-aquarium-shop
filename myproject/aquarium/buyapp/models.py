@@ -1,4 +1,8 @@
 from django.db import models
+class Register(models.Model):
+    phone=models.CharField(max_length=50,null=False)
+    email=models.EmailField(max_length=50,null=False)
+    passwd=models.CharField(max_length=50,null=False)
 
 class Member(models.Model):
     name = models.CharField(max_length=50)
@@ -23,7 +27,7 @@ class Member(models.Model):
 
 
 
-class Purchase(models.Model):
+class Purchase(models.Model):   
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     item = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=8, decimal_places=2)
@@ -31,13 +35,13 @@ class Purchase(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     note = models.TextField()
     shipping_status = models.CharField(max_length=20)
-    # 可以增加其他與消費相關的欄位
+    # ?��以�?��?��?��?��??�?費相??��??�?�?
 
 
 class PaymentInfo(models.Model):
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     card_number = models.CharField(max_length=20)
-    # 這邊可以增加其他與付款相關的欄位
+    # ??��?�可以�?��?��?��?��??付款?��??��??�?�?
 
 class ShoppingCart(models.Model):
     product_name = models.CharField(max_length=200)
