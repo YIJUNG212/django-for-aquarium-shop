@@ -55,9 +55,10 @@ from rest_framework.response import Response
 
 from .models import VipInfo
 from .serializer import VipInfoSerializer
+from .models import VipInfodata
 
 class VipInfoViewSet(viewsets.ModelViewSet):
-    queryset = VipInfo.objects.all()
+    queryset = VipInfodata.objects.all()
     serializer_class = VipInfoSerializer
 ####律定格式範圍#####
     def parse_form_data(self, data):
@@ -93,7 +94,7 @@ class VipInfoViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        queryset = VipInfo.objects.all()
+        queryset = VipInfodata.objects.all()
         register = get_object_or_404(queryset, pk=pk)
         serializer = VipInfoSerializer(register)
         return Response(serializer.data)
@@ -105,15 +106,15 @@ class VipInfoViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def update(self, request, pk=None):
-        try:
-            register = VipInfo.objects.get(pk=pk)
-        except VipInfo.DoesNotExist:
-            return Response({'detail': '找不到資源。'}, status=status.HTTP_404_NOT_FOUND)
-
+##要引入
+    from django.views.decorators.csrf import csrf_exempt
+    @csrf_exempt
+    def update(self, request, *args, **kwargs):
+        print("Update method called with pk =", kwargs.get('pk'))
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
         data = self.parse_form_data(request.data)
-        serializer = VipInfoSerializer(register, data=data)
+        serializer = self.get_serializer(instance, data=data, partial=partial)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -121,8 +122,8 @@ class VipInfoViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, pk=None):
         try:
-            register = VipInfo.objects.get(pk=pk)
-        except VipInfo.DoesNotExist:
+            register = VipInfodata.objects.get(pk=pk)
+        except VipInfodata.DoesNotExist:
             return Response({'detail': '找不到資源。'}, status=status.HTTP_404_NOT_FOUND)
 
         register.delete()

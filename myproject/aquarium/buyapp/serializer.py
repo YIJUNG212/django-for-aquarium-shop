@@ -21,6 +21,12 @@ class VipInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model=VipInfo
         fields="__all__"
+############真正的會員系統######
+from .models import VipInfodata
+class VipInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=VipInfodata
+        fields="__all__"
 
 #先import 資料表
 
