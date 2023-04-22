@@ -23,10 +23,17 @@ class VipInfoSerializer(serializers.ModelSerializer):
         fields="__all__"
 ############真正的會員系統######
 from .models import VipInfodata
+import datetime
 class VipInfoSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
     class Meta:
         model=VipInfodata
         fields="__all__"
+    # def to_internal_value(self, data):
+    #     if 'cBirthday' in data:
+    #         # 將傳入的日期字串轉換成 datetime.date 對象
+    #         data['cBirthday'] = datetime.datetime.strptime(data['cBirthday'], '%Y-%m-%d').date()
+    #     return super().to_internal_value(data)
 
 #先import 資料表
 
@@ -44,3 +51,17 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 
+###############這裡是restframwork提供內建的USERSET範圍
+from django.contrib.auth.models import User
+from rest_framework import serializers
+
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'password', 'email', 'first_name', 'last_name')

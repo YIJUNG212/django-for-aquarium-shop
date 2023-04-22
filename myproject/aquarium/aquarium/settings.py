@@ -41,17 +41,31 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'buyapp',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    # 'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'corsheaders.middleware.CorsMiddleware',
+    # 'django.middleware.common.CommonMiddleware',
 ]
+#以下也都先註解掉
+
+#CSRF_COOKIE_NAME = 'csrftoken'
+#CSRF_COOKIE_AGE = None
+#CSRF_COOKIE_DOMAIN = None
+#CSRF_COOKIE_PATH = '/'
+#CSRF_COOKIE_SECURE = False
+#CSRF_COOKIE_SAMESITE = 'Lax'
+#CSRF_COOKIE_USED = True
+#########
+
 
 ROOT_URLCONF = 'aquarium.urls'
 
@@ -135,37 +149,43 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DEBUG = False
 
 # SSL settings
-SSL_ENABLED = True
-SSL_CERT_PATH = '/home/seric/envdata/myproject/aquarium/cert.pem'
-SSL_KEY_PATH = '/home/seric/envdata/myproject/aquarium/key.pem'
+# SSL_ENABLED = True
+# SSL_CERT_PATH = '/home/seric/envdata/myproject/aquarium/cert.pem'
+# SSL_KEY_PATH = '/home/seric/envdata/myproject/aquarium/key.pem'
 
-if SSL_ENABLED:
-    # enable SSL settings
-    os.environ['HTTPS'] = "on"
-    os.environ['wsgi.url_scheme'] = 'https'
+#if SSL_ENABLED:
+  #  # enable SSL settings
+  #  os.environ['HTTPS'] = "on"
+  #  os.environ['wsgi.url_scheme'] = 'https'
     
     # SSL certificate and key paths
-    SSL_CERT_PATH = SSL_CERT_PATH
-    SSL_KEY_PATH = SSL_KEY_PATH
+   # SSL_CERT_PATH = SSL_CERT_PATH
+    #SSL_KEY_PATH = SSL_KEY_PATH
     
     # SSL settings for runserver
-    RUNSERVER_SSL_OPTIONS = {
-        'certfile': SSL_CERT_PATH,
-        'keyfile': SSL_KEY_PATH,
-        'ssl_requirement': {
-            'https': 'on'
-        }
-    }
+    #RUNSERVER_SSL_OPTIONS = {
+     #   'certfile': SSL_CERT_PATH,
+     #   'keyfile': SSL_KEY_PATH,
+     #   'ssl_requirement': {
+     #       'https': 'on'
+      #  }
+   # }
 
     # SSL settings for production server (e.g. gunicorn, uwsgi)
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
-    SSL_REDIRECT_STATUS = 301
+    #下面這三行好像會一直重定向到https,但目前我是用http,所以會影響API端點的PUT功能
+    #SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    #SECURE_SSL_REDIRECT = True
+    #SSL_REDIRECT_STATUS = 301
 
 # your other settings here...
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+
 }
 
 LOGGING = {
@@ -181,3 +201,10 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+CORS_ORIGIN_WHITELIST = [
+    'http://example.com',
+    'https://example.com',
+    'http://192.168.0.1',
+    'https://192.168.58.123',
+]

@@ -16,6 +16,8 @@ from rest_framework import routers
 #註冊ViewSet
 router.register(r'register', RegisterViewSet,basename="register")
 router.register(r'vipinfo', VipInfoViewSet,basename="vipinfo")
+from buyapp.views import UserViewSet
+router.register(r'users', UserViewSet)
 
 #這裡設定只要有path('api/', include(router.urls)), 跟上面的router = routers.DefaultRouter(),就會自動加入ViewSet
 urlpatterns = [

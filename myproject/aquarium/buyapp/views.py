@@ -60,6 +60,19 @@ from .models import VipInfodata
 class VipInfoViewSet(viewsets.ModelViewSet):
     queryset = VipInfodata.objects.all()
     serializer_class = VipInfoSerializer
+
+######加這個可以啟動帳號登入後可獲得的權限,但要搭配機制
+    # def get_permissions(self):
+    #     if self.action == 'create':
+    #         self.permission_classes = (AllowAny,)
+    #     return super(UserViewSet, self).get_permissions()
+
+
+######加這個可以啟動帳號登入後可獲得的權限,但要搭配機制end
+
+
+
+
 ####律定格式範圍#####
     def parse_form_data(self, data):
         # 將非 JSON 格式的 POST 請求轉成 QueryDict 格式
@@ -108,17 +121,22 @@ class VipInfoViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 ##要引入
     from django.views.decorators.csrf import csrf_exempt
-    @csrf_exempt
-    def update(self, request, *args, **kwargs):
-        print("Update method called with pk =", kwargs.get('pk'))
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        data = self.parse_form_data(request.data)
-        serializer = self.get_serializer(instance, data=data, partial=partial)
+#導入@api_view(['PUT'])需要import 的元件
+    from rest_framework.decorators import api_view
+    from rest_framework.response import Response
+    from rest_framework import status
+
+
+    
+    def update(self, request, pk=None):
+        queryset = VipInfodata.objects.all()
+        register = get_object_or_404(queryset, pk=pk)
+        serializer = VipInfoSerializer(register, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
     def destroy(self, request, pk=None):
         try:
@@ -285,25 +303,24 @@ class MemberViewSet(viewsets.ModelViewSet):
 def index(request):
     return HttpResponse("我是主頁")
 
+###############這裡是restframwork提供內建的USERSET範圍
+from django.contrib.auth.models import User
+from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
+from .serializer import UserSerializer
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+
+    def get_permissions(self):
+        if self.action == 'create':
+            self.permission_classes = (AllowAny,)
+        return super(UserViewSet, self).get_permissions()
 
 
 
 
 
 
-
-# @require_http_methods(['GET'])
-# def my_view(request):
-#     # your view code here
-#     pass
-
-# def redirect_to_https(view_func):
-#     def wrapper(request, *args, **kwargs):
-#         if not request.is_secure():
-#             url = request.build_absolute_uri(request.get_full_path())
-#             secure_url = url.replace("http://", "https://")
-#             return redirect(secure_url)
-#         return view_func(request, *args, **kwargs)
-#     return wrapper
-# def index(request):
-#     return HttpResponse("test")
