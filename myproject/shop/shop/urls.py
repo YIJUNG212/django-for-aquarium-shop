@@ -17,12 +17,16 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import permissions
 #密碼問題要引入
+# from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from django.contrib.auth.hashers import make_password
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-    #authentication_classes = [JWTAuthentication]#這行我不確定要不要加
+    AUTHENTICATION_CLASSES=[]
+    #authentication_classes = [JWTAuthentication,]   這個應該是要加在其他需要token進入的viewset
     def get_permissions(self):
         if self.action == 'list':
             permission_classes = [permissions.AllowAny]
