@@ -9,3 +9,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ['id','url', 'username','password', 'email', 'is_staff']
+
+###要加入VIPINFO的解析
+from shopapp.models import VipInfodata
+class VipInfoSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model=VipInfodata
+        fields="__all__"

@@ -79,3 +79,12 @@ class UserViewSet(viewsets.ModelViewSet):
             instance.delete()
         else:
             raise PermissionDenied("You don't have permission to delete this user.")
+##****************************************************************************************
+##加入需要的vipinfo
+from shopapp.models import VipInfodata
+from shopapp.serializers import VipInfoSerializer
+class VipInfoViewSet(viewsets.ModelViewSet):
+    queryset = VipInfodata.objects.all()
+    serializer_class = VipInfoSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication] 

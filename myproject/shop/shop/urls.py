@@ -4,11 +4,12 @@ from rest_framework import routers, serializers, viewsets
 from rest_framework.permissions import AllowAny,IsAuthenticated
 from django.http import HttpResponse
 from shopapp.serializers import UserSerializer
-from shopapp.views import UserViewSet#要調用視圖
+from shopapp.views import UserViewSet,VipInfoViewSet#要調用視圖
 
 # Routers註冊區,這裡可以註冊多組視圖,並指定在api/底下的前綴
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
+router.register(r'vip', VipInfoViewSet)
 
 
 # Wire up our API using automatic URL routing.
