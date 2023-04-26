@@ -21,11 +21,12 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     permission_classes = [AllowAny]
+    authentication_classes = [JWTAuthentication] 
     
-    #authentication_classes = [JWTAuthentication,]  
+     
     def get_permissions(self):
         if self.action == 'list':
-            permission_classes = [permissions.AllowAny]
+            permission_classes = [permissions.IsAuthenticated]
         elif self.action == 'create':
             permission_classes = [permissions.AllowAny]
         else:
@@ -44,10 +45,12 @@ class UserViewSet(viewsets.ModelViewSet):
         # 當未登入時,就什麼都沒得查
         return User.objects.none()
     def list(self, request, *args, **kwargs):
+        
         if not request.user.is_authenticated:
             # 當還沒登入時，可以使用創造帳號功能
             return self.create(request, *args, **kwargs)
-        return super().list(request, *args, **kwargs)
+        else:
+            return super().list(request, *args, **kwargs)
     def perform_create(self, serializer):
          # 當創建用戶時，會將密碼加密
         serializer.validated_data['password'] = make_password(serializer.validated_data['password'])
