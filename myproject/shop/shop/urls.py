@@ -25,7 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-    AUTHENTICATION_CLASSES=[]
+    
     #authentication_classes = [JWTAuthentication,]   這個應該是要加在其他需要token進入的viewset
     def get_permissions(self):
         if self.action == 'list':
