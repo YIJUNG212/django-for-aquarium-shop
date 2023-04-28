@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-#¼W¥[¤@­Ó¥¿¦¡¥Îªº¸ê®Æªí
+#æ–°å¢žVIPçš„MODEL
 class VipInfodata(models.Model):
     cname=models.CharField(max_length=50,null=False)
     cemail=models.EmailField(max_length=50,null=False)
